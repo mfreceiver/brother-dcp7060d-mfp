@@ -1,0 +1,22 @@
+services:
+  brother:
+    image: brother-dcp7060d:latest
+    build: .
+    container_name: brother-mfp
+    hostname: myserver            # mDNS 广播名
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "631:631"                 # IPP/IPPS + CUPS web 管理
+      - "8090:8090"               # eSCL 扫描（容器内外端口须一致，mDNS 广播用）
+    volumes:
+      - /path/to/appdata/cups:/etc/cups
+      - /dev/bus/usb:/dev/bus/usb
+      - /run/avahi-daemon:/run/avahi-daemon
+      - /var/run/dbus:/var/run/dbus:ro
+    environment:
+      - TZ=Asia/Shanghai
+      # 必填：打印机 USB URI（serial 锁定，lsusb/lpinfo -v 查询）
+      - PRINTER_URI=usb://Brother/DCP-7060D?serial=YOUR_SERIAL
+      # 可选：TLS 证书主名（ipps/安卓兼容），默认 mar-nas.local
+      - TLS_CERT_BASENAME=mar-nas.local
